@@ -5,14 +5,15 @@ import json
 import logging
 
 def input_movie():
-    movie = input('What movie are we watching tonight?\n')
-    logging.debug(f'Watching {movie}')
+    full_name = input('What movie are we watching tonight?\n')
+    logging.debug(f'Watching {full_name}')
 
-    return (
-        pathvalidate.sanitize_filename(movie)
+    usable_name = (
+        pathvalidate.sanitize_filename(full_name)
         .replace(' ', '-')
         .lower()
-        )
+    )
+    return (usable_name, full_name)
 
 def start():
     return input('Ready???\n')
@@ -21,17 +22,19 @@ def input_fun_value():
     value = input('Here we go! Press Ctl+D to end\n')
     return (datetime.now(), value)
 
-def viewing_data(start, end, fun):
+def viewing_data(name, start, end, fun):
     return {
+        'movie': name,
         'start': start,
         'end': end,
         'fun': fun
     }
 
-def report(start, end, raw_fun):
+def report(name, start, end, raw_fun):
     # Pretty-print a viewing report
 
     by_scene = {
+        'movie': name,
         'start': start.strftime('%a %d/%m/%Y %H:%M:%S'),
         'end': end.strftime('%a %d/%m/%Y %H:%M:%S'),
         'fun': {}
@@ -48,7 +51,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
     # Prep for the collection
-    movie = input_movie()
+    movie, movie_full_name = input_movie()
     logging.debug(f'Usable movie name is {movie}')
 
 
@@ -75,9 +78,9 @@ if __name__ == '__main__':
     logging.debug(f'Fun values: {fun}')
 
     path = pathlib.Path(f'./{movie}.json')
-    path.write_text(str(viewing_data(beginning, end, fun)))
+    path.write_text(str(viewing_data(movie_full_name, beginning, end, fun)))
     logging.info(f'Fun values written to {path}')
 
     path = pathlib.Path(f'./{movie}_report.json')
-    path.write_text(report(beginning, end, fun))
+    path.write_text(report(movie_full_name, beginning, end, fun))
     logging.info(f'Fun values report written to {path}')
