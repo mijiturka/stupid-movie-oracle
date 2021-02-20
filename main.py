@@ -21,5 +21,3 @@ for i in range(1, 5):
     poster = Image.open(os.path.join(posters_path, tonight_we_watch))
     poster.show()
     time.sleep(0.1)
-
-# print(tonight_we_watch)
