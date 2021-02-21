@@ -2,15 +2,23 @@ import os
 import random
 from PIL import Image
 import time
+import logging
 
-print(1)
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+
+# Print out countdown
+
+logging.info(1)
 time.sleep(0.1)
-print(2)
+logging.info(2)
 time.sleep(0.1)
-print(3)
+logging.info(3)
 time.sleep(0.1)
-print('Очаквам да знаеш за Екзюпари')
+logging.info('Очаквам да знаеш за Екзюпари')
 time.sleep(1)
+
+
+# Display some random posters followed by tonight's movie
 
 posters_path = './movies'
 
