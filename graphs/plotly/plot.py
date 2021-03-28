@@ -6,8 +6,25 @@ import argparse
 
 import plotly.express
 
+import utils
+
 def from_report(path):
     return json.loads(path.read_text())
+
+def timestamped(original, zone_name):
+    start = utils.localize_if_naive(utils.to_timestamp(original['start']), zone_name)
+    end = utils.localize_if_naive(utils.to_timestamp(original['end']), zone_name)
+
+    timezoned = {}
+    timezoned['movie'] = original['movie']
+    timezoned['start'] = start
+    timezoned['end'] = end
+    timezoned['fun'] = {}
+    for scene in original['fun'].keys():
+        timestamp = utils.localize_if_naive(utils.scene_to_timestamp(scene, start), zone_name)
+        timezoned['fun'][timestamp] = original['fun'][scene]
+
+    return timezoned
 
 def is_positive(value):
     if not value:
@@ -58,7 +75,7 @@ if __name__ == '__main__':
 
 
     # Get the data
-    data = from_report(path)
+    data = timestamped(from_report(path), 'Europe/London')
 
     # Massage it to make it more graphable
     timestamps = []
