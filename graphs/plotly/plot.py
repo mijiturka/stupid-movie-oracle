@@ -11,6 +11,40 @@ import utils
 def from_report(path):
     return json.loads(path.read_text())
 
+def graphable(fun):
+    timestamps = []
+    fun = []
+    fun_quality = []
+    fun_quantity = []
+    # This helps visibilty, but depends on how trigger-happy we've been throughout the movie
+    multiplier = 10
+
+    for (timestamp, value) in data['fun'].items():
+        quantity = len(value)
+        if is_positive(value):
+            # Determines where this value would go on the plot
+            fun_quality.append(1)
+            # Determines size of the representation of this value
+            fun_quantity.append(quantity*multiplier)
+            # All-in-one value, useful for line charts
+            fun.append(quantity)
+            timestamps.append(timestamp)
+        elif is_negative(value):
+            fun_quality.append(-1)
+            fun_quantity.append(quantity*multiplier)
+            fun.append(-quantity)
+            timestamps.append(timestamp)
+        else:
+            # The record is invalid. We don't want its value or timestamp
+            logging.warning(f'Ignoring value {value} at {timestamp}')
+
+    return (
+        timestamps,
+        fun,
+        fun_quality,
+        fun_quantity
+    )
+
 def timestamped(original, zone_name):
     start = utils.localize_if_naive(utils.to_timestamp(original['start']), zone_name)
     end = utils.localize_if_naive(utils.to_timestamp(original['end']), zone_name)
@@ -39,8 +73,7 @@ def is_negative(value):
 def line_chart(timestamps, fun):
     return plotly.express.line(x=timestamps, y=fun)
 
-def binary_chart(timestams, fun_quality, fun_quantity):
-    fig = plotly.graph_objects.Figure()
+def binary_chart(timestams, fun_quality, fun_quantity, debil):
     fig.add_trace(
         plotly.graph_objects.Scatter(
             x=timestamps,
@@ -49,7 +82,7 @@ def binary_chart(timestams, fun_quality, fun_quantity):
             marker=dict(
                 size=fun_quantity
             ),
-            name='Capellyana'
+            name=debil
         )
     )
     return fig
@@ -74,42 +107,34 @@ if __name__ == '__main__':
         path = pathlib.Path(args.file)
 
 
+    fig = plotly.graph_objects.Figure()
+
     # Get the data
     data = timestamped(from_report(path), 'Europe/London')
 
     # Massage it to make it more graphable
-    timestamps = []
-    fun = []
-    fun_quality = []
-    fun_quantity = []
-    # This helps visibilty, but depends on how trigger-happy we've been throughout the movie
-    multiplier = 10
-
-    for (timestamp, value) in data['fun'].items():
-        quantity = len(value)
-        if is_positive(value):
-            # Determines where this value would go on the plot
-            fun_quality.append(1)
-            # Determines size of the representation of this value
-            fun_quantity.append(quantity*multiplier)
-            # All-in-one value, useful for line charts
-            fun.append(quantity)
-            timestamps.append(timestamp)
-        elif is_negative(value):
-            fun_quality.append(-1)
-            fun_quantity.append(quantity*multiplier)
-            fun.append(-quantity)
-            timestamps.append(timestamp)
-        else:
-            # The record is invalid. We don't want its value or timestamp
-            logging.warning(f'Ignoring value {value} at {timestamp}')
-
+    timestamps, fun, fun_quality, fun_quantity = graphable(data)
 
     # Prepare the plot
 
     # fig = line_chart(timestamps, fun)
 
-    fig = binary_chart(timestamps, fun_quality, fun_quantity)
+    fig = binary_chart(timestamps, fun_quality, fun_quantity, 'Capellyana')
+
+
+    # path = pathlib.Path(f'../../data/{args.movie}-shmentina_report.json')
+    # # Get the data
+    # data = timestamped(from_report(path), 'Europe/Amsterdam')
+    #
+    # # Massage it to make it more graphable
+    # timestamps, fun, fun_quality, fun_quantity = graphable(data)
+    #
+    # # Prepare the plot
+    #
+    # # fig = line_chart(timestamps, fun)
+    #
+    # fig = binary_chart(timestamps, fun_quality, fun_quantity, 'Shmentina')
+
 
     # Start up a server and serve this one page; display in browser window
     fig.show()
