@@ -11,6 +11,7 @@ def input_movie():
     usable_name = (
         pathvalidate.sanitize_filename(full_name)
         .replace(' ', '-')
+        .replace('\'', '')
         .lower()
     )
     return (usable_name, full_name)
