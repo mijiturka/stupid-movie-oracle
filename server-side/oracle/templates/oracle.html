@@ -1,0 +1,13 @@
+<h1>Stupid Movie Oracle</h1>
+
+<p>
+  Tonight we watch...
+</p>
+
+<p>
+  <ol>
+  {% for movie in movies -%}
+    <li>{{movie}}</li>
+  {% endfor -%}
+  </ol>
+</p>
