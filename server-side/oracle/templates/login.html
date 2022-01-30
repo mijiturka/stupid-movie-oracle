@@ -1,0 +1,12 @@
+{% if wrong_login_details %}
+<p>Не е верно!</p>
+{% endif %}
+<form method="post">
+  <label for="username">Дебил</label>
+  <input type="text" placeholder="Кой си ти бе" name="username" required>
+
+  <label for="password">Парола</label>
+  <input type="password" placeholder="Ква ти е паролата" name="password" required>
+
+  <button type="submit">Легитимирай се</button>
+</form>
