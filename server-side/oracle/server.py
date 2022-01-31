@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 import secrets
 
-from oracle import options
+from oracle import options, user
 
 app = Flask(__name__)
 
@@ -38,7 +38,7 @@ class User(UserMixin):
 
     def check_password(self, password):
         try:
-            return PasswordHasher().verify(Path('users/capellyana.key').read_text().strip(), password)
+            return PasswordHasher().verify(user.get_password(self.username), password)
         except Exception as e:
             return False
 
