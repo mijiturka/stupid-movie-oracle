@@ -1,5 +1,5 @@
 from argon2 import PasswordHasher
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, abort, redirect, render_template, request, session, url_for
 from flask_login import current_user, LoginManager, login_required, login_user, UserMixin
 from pathlib import Path
 import secrets
@@ -61,12 +61,21 @@ def login(redirected_from_registration=False):
         username = request.form.get('username')
         password = request.form.get('password')
 
+        if not user.exists(username):
+            return render_template('login.html', wrong_login_details=True)
+
+        if user.locked(username):
+            app.logger.info(f'{username} keeps trying')
+            return abort(403)
+
         if User(username).check_password(password):
             login_user(User(username))
+            user.reset_unsuccessful_login_attempts(username)
             app.logger.info(f'Successfully logged-in {username}')
             return redirect(url_for('main'))
         else:
             app.logger.info(f'Failed login attempt for {username}')
+            user.handle_unsuccessful_login_attempt(username)
             return render_template('login.html', wrong_login_details=True)
 
     # Display login page
