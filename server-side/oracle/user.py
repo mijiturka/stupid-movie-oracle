@@ -19,8 +19,9 @@ def new(username, password_hash):
         User[username]
         raise AlreadyExistsError(f'User {username} already exists')
     except orm.core.ObjectNotFound:
-        # TODO User doesn't exist - create it
-        pass
+        # User doesn't exist - create it
+        User(username=username, password=password_hash)
+        orm.commit()
 
 class AlreadyExistsError(Exception):
     pass

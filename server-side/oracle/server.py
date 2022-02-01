@@ -29,16 +29,21 @@ def main():
     return render_template('oracle.html', movies=options.dieable(movies, sides=6))
 
 class User(UserMixin):
-    id = 1
-    username = 'capellyana'
+    def __init__(self, username):
+        self.username = username
+        app.logger.debug(f'Created new instance of User: {self}')
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
+
+    def get_id(self):
+        return self.username
 
     def check_password(self, password):
         try:
             return PasswordHasher().verify(user.get_password(self.username), password)
         except Exception as e:
+            app.logger.debug(e)
             return False
 
 @app.route('/login-after-registration', methods=['GET', 'POST'])
@@ -56,8 +61,8 @@ def login(redirected_from_registration=False):
         username = request.form.get('username')
         password = request.form.get('password')
 
-        if username == 'capellyana' and User().check_password(password):
-            login_user(User())
+        if User(username).check_password(password):
+            login_user(User(username))
             app.logger.info(f'Successfully logged-in {username}')
             return redirect(url_for('main'))
         else:
@@ -94,4 +99,4 @@ def register():
 
 @login_manager.user_loader
 def load_user(userid):
-    return User()
+    return User(userid)
