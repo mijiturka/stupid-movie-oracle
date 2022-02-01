@@ -12,3 +12,15 @@ db.generate_mapping(create_tables=True)
 @orm.db_session
 def get_password(username):
     return User[username].password
+
+@orm.db_session
+def new(username, password_hash):
+    try:
+        User[username]
+        raise AlreadyExistsError(f'User {username} already exists')
+    except orm.core.ObjectNotFound:
+        # TODO User doesn't exist - create it
+        pass
+
+class AlreadyExistsError(Exception):
+    pass

@@ -1,9 +1,5 @@
-{% if wrong_login_details -%}
-  <p>Не е верно!</p>
-{% endif -%}
-
-{% if redirected_from_registration -%}
-  <p>Регна се. А ся се логни!</p>
+{% if username_already_exists: -%}
+  <p>Тоя ник вече го имаме!</p>
 {% endif -%}
 
 <form method="post">
@@ -13,5 +9,5 @@
   <label for="password">Парола</label>
   <input type="password" placeholder="Ква ти е паролата" name="password" required>
 
-  <button type="submit">Легитимирай се</button>
+  <button type="submit">Регистрирай се</button>
 </form>
