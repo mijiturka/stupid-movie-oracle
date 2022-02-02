@@ -1,2 +1,5 @@
 *.key
 users
+*.tfvars
+.terraform
+*.planout
