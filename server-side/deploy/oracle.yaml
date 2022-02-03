@@ -1,0 +1,17 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Upgrade packages
+      apt:
+        update_cache: yes
+        upgrade: yes
+        
+    - name: Install nginx
+      apt:
+        name: nginx
+
+    - name: Add page to serve
+      copy:
+        dest: /var/www/html/index.nginx-debian.html
+        src: ./test.html
