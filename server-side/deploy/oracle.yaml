@@ -2,11 +2,89 @@
 - hosts: all
   become: yes
   tasks:
+    # Installation
     - name: Upgrade packages
       apt:
         update_cache: yes
         upgrade: yes
-        
+
+    - name: Install dependences
+      apt:
+        pkg:
+          # required by pyenv-installer
+          - git
+          # required by pyenv install x
+          - build-essential
+          - zlib1g-dev
+          - libssl-dev
+          # required to enable python extensions
+          - libreadline-dev
+          - libsqlite3-dev
+          - libbz2-dev
+
+    - name: Set up a directory for install scripts
+      file:
+        path: /setup
+        state: directory
+
+    - name: Download pyenv-installer
+      shell: curl https://pyenv.run > /setup/pyenv.sh
+    - name: How is this better than a bash script?
+      file:
+        path: /setup/pyenv.sh
+        mode: u+x
+    - name: Install pyenv
+      command: /setup/pyenv.sh
+    - name: Check pyenv is installed
+      command: pyenv versions
+    # - name: Install the required python version under pyenv and activate it
+    #   shell:
+    #     # TODO read out from .python-version
+    #     command: pyenv install 3.9.9 && PATH=$(pyenv root)/shims:$PATH
+    # - name: Install virtualenv
+    #   apt:
+    #     name: virtualenv
+    #
+    # # Setup
+    # - name: Set up working directory
+    #   shell:
+    #     command: mkdir /server
+    # - name: Copy requirements.txt to machine
+    #   copy:
+    #     src: ../requirements.txt
+    #     dest: /server/
+    # - name: Prepare python environment
+    #   shell:
+    #     command: |
+    #       echo "3.9.9" > /server/.python-version
+    #       python -m venv venv
+    #       source venv/bin/activate
+    #       pip --version
+    #       pip install -r requirements.txt
+    #     chdir:
+    #       /server
+
+    # - name:
+    #   pip:
+    #     chdir: /server
+    #     requirements: /server/requirements.txt
+
+    # - name: Install python
+    #   apt:
+    #     pkg:
+    #       - python3
+    #       - python3-pip
+    #       - virtualenv
+    #       - python3-setuptools
+    #
+    # - name: Add application code
+    #   copy:
+    #     src: ../oracle
+    #     dest: /server/
+    #
+    #
+
+
     - name: Install nginx
       apt:
         name: nginx

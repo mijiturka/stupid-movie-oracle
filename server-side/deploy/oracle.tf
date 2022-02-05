@@ -17,9 +17,21 @@ resource "linode_instance" "mayonesia-oracle" {
   group   = "mayonesia"
   region  = var.region
   type    = "g6-nanode-1"
-  backups_enabled = false
+  backups_enabled   = false
   authorized_users  = [ var.ssh_user ]
   root_pass         = var.root_user_pwd
+
+  provisioner "file" {
+    content = "this is a test"
+    destination = "/root/test"
+
+    connection {
+      host      = self.ip_address
+      type      = "ssh"
+      user      = "root"
+      password  = var.root_user_pwd
+    }
+  }
 }
 
 output "ip" {

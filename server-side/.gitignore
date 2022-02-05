@@ -3,3 +3,7 @@ users
 *.tfvars
 .terraform
 *.planout
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+inventory.ini
