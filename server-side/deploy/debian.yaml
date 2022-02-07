@@ -11,7 +11,7 @@
     - name: Install dependences
       apt:
         pkg:
-          # required by pyenv-installer
+          # required to install pyenv
           - git
           # required by pyenv install x
           - build-essential
@@ -22,69 +22,32 @@
           - libsqlite3-dev
           - libbz2-dev
 
-    - name: Set up a directory for install scripts
-      file:
-        path: /setup
-        state: directory
-
     - name: Get source for pyenv
       git:
         repo: https://github.com/pyenv/pyenv.git
         dest: ~/.pyenv
         clone: yes
         update: yes
-
-    - name: Nz
+    - name: Build pyenv
       command: src/configure && make -C src
       args:
         chdir: ~/.pyenv
-    # - name: Add pyenv to .bashrc
-    #   shell: |
-    #     # the sed invocation inserts the lines at the start of the file
-    #     # after any initial comment lines
-    #     sed -Ei -e '/^([^#]|$)/ {a \
-    #     export PYENV_ROOT="$HOME/.pyenv"
-    #     a \
-    #     export PATH="$PYENV_ROOT/bin:$PATH"
-    #     a \
-    #     ' -e ':a' -e '$!{n;ba};}' ~/.profile
-    #     echo 'eval "$(pyenv init --path)"' >>~/.profile
-    #
-    #     echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-    # - name: Check pyenv is installed
-    #   command: pyenv versions
+    - name: Make pyenv binary accessible without shell magic
+      file:
+        src: ~/.pyenv/bin/pyenv
+        path: /usr/local/bin/pyenv
+        state: link
+    - name: Make pyenv's shims accessible
+      copy:
+        dest: /etc/profile.d/custom-path.sh
+        content: 'PATH=$PATH:/root/.pyenv/shims'
+    - name: Install the required python version under pyenv
+      # TODO read out from .python-version
+      ansible.builtin.command:
+        cmd: pyenv install 3.9.9
+        creates: /root/.pyenv/versions/3.9.9
 
-    # - name: Install the required python version under pyenv and activate it
-    #   shell:
-    #     # TODO read out from .python-version
-    #     command: pyenv install 3.9.9 && PATH=$(pyenv root)/shims:$PATH
-    # - name: Install virtualenv
-    #   apt:
-    #     name: virtualenv
-    #
-    # # Setup
-    # - name: Set up working directory
-    #   shell:
-    #     command: mkdir /server
-    # - name: Copy requirements.txt to machine
-    #   copy:
-    #     src: ../requirements.txt
-    #     dest: /server/
-    # - name: Prepare python environment
-    #   shell:
-    #     command: |
-    #       echo "3.9.9" > /server/.python-version
-    #       python -m venv venv
-    #       source venv/bin/activate
-    #       pip --version
-    #       pip install -r requirements.txt
-    #     chdir:
-    #       /server
 
-    # - name:
-    #   pip:
-    #     chdir: /server
-    #     requirements: /server/requirements.txt
 
     # - name: Install python
     #   apt:
