@@ -27,16 +27,33 @@
         path: /setup
         state: directory
 
-    - name: Download pyenv-installer
-      shell: curl https://pyenv.run > /setup/pyenv.sh
-    - name: How is this better than a bash script?
-      file:
-        path: /setup/pyenv.sh
-        mode: u+x
-    - name: Install pyenv
-      command: /setup/pyenv.sh
-    - name: Check pyenv is installed
-      command: pyenv versions
+    - name: Get source for pyenv
+      git:
+        repo: https://github.com/pyenv/pyenv.git
+        dest: ~/.pyenv
+        clone: yes
+        update: yes
+
+    - name: Nz
+      command: src/configure && make -C src
+      args:
+        chdir: ~/.pyenv
+    # - name: Add pyenv to .bashrc
+    #   shell: |
+    #     # the sed invocation inserts the lines at the start of the file
+    #     # after any initial comment lines
+    #     sed -Ei -e '/^([^#]|$)/ {a \
+    #     export PYENV_ROOT="$HOME/.pyenv"
+    #     a \
+    #     export PATH="$PYENV_ROOT/bin:$PATH"
+    #     a \
+    #     ' -e ':a' -e '$!{n;ba};}' ~/.profile
+    #     echo 'eval "$(pyenv init --path)"' >>~/.profile
+    #
+    #     echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+    # - name: Check pyenv is installed
+    #   command: pyenv versions
+
     # - name: Install the required python version under pyenv and activate it
     #   shell:
     #     # TODO read out from .python-version
