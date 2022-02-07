@@ -40,14 +40,37 @@
     - name: Make pyenv's shims accessible
       copy:
         dest: /etc/profile.d/custom-path.sh
-        content: 'PATH=$PATH:/root/.pyenv/shims'
+        content: 'PATH=/root/.pyenv/shims:$PATH'
     - name: Install the required python version under pyenv
       # TODO read out from .python-version
       ansible.builtin.command:
         cmd: pyenv install 3.9.9
         creates: /root/.pyenv/versions/3.9.9
 
-
+    # Application environment configuration
+    - name: Create working folder for application
+      file:
+        path: /server
+        state: directory
+    - name: Prepare python environment
+      shell: |
+        echo "3.9.9" > .python-version
+        export PATH=/root/.pyenv/shims:$PATH
+        echo $PATH > the_path_at_exec
+        python -m venv venv
+      args:
+        chdir:
+          /server
+        creates:
+          /server/venv
+    - name: Add requiremets.txt
+      copy:
+        dest: /server
+        src: ../requirements.txt
+    - name: Install python modules
+      pip:
+        requirements: /server/requirements.txt
+        virtualenv: /server/venv
 
     # - name: Install python
     #   apt:
@@ -64,11 +87,10 @@
     #
     #
 
-
+    # Nginx
     - name: Install nginx
       apt:
         name: nginx
-
     - name: Add page to serve
       copy:
         dest: /var/www/html/index.nginx-debian.html
