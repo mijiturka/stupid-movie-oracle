@@ -21,6 +21,8 @@
           - libreadline-dev
           - libsqlite3-dev
           - libbz2-dev
+          # required (before python compilation) to install uwsgi as a python module
+          - libffi-dev
 
     - name: Get source for pyenv
       git:
@@ -52,46 +54,53 @@
       file:
         path: /server
         state: directory
+    - name: Add application code
+      copy:
+        src: ../oracle
+        dest: /server/
+    - name: Add requiremets.txt
+      copy:
+        dest: /server
+        src: ../requirements.txt
+
     - name: Prepare python environment
       shell: |
         echo "3.9.9" > .python-version
         export PATH=/root/.pyenv/shims:$PATH
-        echo $PATH > the_path_at_exec
         python -m venv venv
       args:
         chdir:
           /server
         creates:
           /server/venv
-    - name: Add requiremets.txt
-      copy:
-        dest: /server
-        src: ../requirements.txt
     - name: Install python modules
       pip:
         requirements: /server/requirements.txt
         virtualenv: /server/venv
 
-    # - name: Install python
-    #   apt:
-    #     pkg:
-    #       - python3
-    #       - python3-pip
-    #       - virtualenv
-    #       - python3-setuptools
-    #
-    # - name: Add application code
-    #   copy:
-    #     src: ../oracle
-    #     dest: /server/
-    #
-    #
+    # UWSGI
+    - name: Add uswgi configuration code
+      copy:
+        src: ./uwsgi
+        dest: /server/
+    - name: Install uwsgi
+      pip:
+        requirements: /server/uwsgi/requirements.txt
+        virtualenv: /server/venv
+    - name: Set up uwsgi as a systemd service
+      copy:
+        dest: /etc/systemd/system
+        src: uwsgi/emperor.uwsgi.service
+    - name: Run uwsgi
+      command: systemctl start emperor.uwsgi.service
 
     # Nginx
     - name: Install nginx
       apt:
         name: nginx
-    - name: Add page to serve
+    - name: Configure nginx
       copy:
-        dest: /var/www/html/index.nginx-debian.html
-        src: ./test.html
+        dest: /etc/nginx/sites-enabled/app
+        src: nginx/settings.conf
+    - name: Reload nginx after configuration is applied
+      command: service nginx reload || nginx
