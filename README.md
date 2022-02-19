@@ -37,8 +37,16 @@ $ ansible-playbook debian.yaml
 ## Running tests
 
 From within the `server-side` directory:
+
+* `pytest`
+Or to run particular tests:
+* `pytest tests/test_server.py`
+* `pytest tests/test_options.py::TestMain`
+* `pytest tests/test_options.py::TestMain::test_dieable_ok_exact`
+
+<!-- Or without pytest:
 * `python -m unittest discover`
 Or to run particular tests:
 * `python -m unittest tests.test_server`
 * `python -m unittest tests.test_options.TestMain`
-* `python -m unittest tests.test_options.TestMain.test_dieable_ok_less_than`
+* `python -m unittest tests.test_options.TestMain.test_dieable_ok_less_than` -->
