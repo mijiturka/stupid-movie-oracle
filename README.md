@@ -3,6 +3,16 @@ One that gives wise and authoritative decisions on which stupid movie we should 
 
 ## Deployment
 
+Either copy a database in or create a new one:
+```
+$ mkdir server-side/users
+$ sqlite3 server-side/users/users.db
+```
+The newly created database can be empty:
+```
+$ sqlite3 server-side/users/users.db "VACUUM;"
+```
+
 Place authentication info in `server-side/deploy/terraform.tfvars`:
 ```
 api_token="..."
