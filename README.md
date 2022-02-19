@@ -33,3 +33,12 @@ Configure the Linode:
 ```
 $ ansible-playbook debian.yaml
 ```
+
+## Running tests
+
+From within the `server-side` directory:
+* `python -m unittest discover`
+Or to run particular tests:
+* `python -m unittest tests.test_server`
+* `python -m unittest tests.test_options.TestMain`
+* `python -m unittest tests.test_options.TestMain.test_dieable_ok_less_than`
