@@ -100,7 +100,7 @@
         src: ./supervisor/supervisor-uwsgi.conf
         dest: /etc/supervisor/conf.d/
     - name: Run UWSGI via supervisord
-      command: service supervisor start
+      command: service supervisor reload || service supervisor start
 
     # Nginx
     - name: Install nginx
