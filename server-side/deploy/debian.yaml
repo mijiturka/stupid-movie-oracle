@@ -58,6 +58,10 @@
       copy:
         src: ../oracle
         dest: /server/
+    - name: Add database
+      copy:
+        src: ../users
+        dest: /server/
     - name: Add requiremets.txt
       copy:
         dest: /server
@@ -87,20 +91,28 @@
       pip:
         requirements: /server/uwsgi/requirements.txt
         virtualenv: /server/venv
-    - name: Set up uwsgi as a systemd service
+    # Supervisord
+    - name: Install supervisord
+      apt:
+        name: supervisor
+    - name: Configure supervisord
       copy:
-        dest: /etc/systemd/system
-        src: uwsgi/emperor.uwsgi.service
-    - name: Run uwsgi
-      command: systemctl start emperor.uwsgi.service
+        src: ./supervisor/supervisor-uwsgi.conf
+        dest: /etc/supervisor/conf.d/
+    - name: Run UWSGI via supervisord
+      command: service supervisor start
 
     # Nginx
     - name: Install nginx
       apt:
         name: nginx
-    - name: Configure nginx
+    - name: Configure new site for nginx
       copy:
         dest: /etc/nginx/sites-enabled/app
         src: nginx/settings.conf
+    - name: Remove nginx's default site
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
     - name: Reload nginx after configuration is applied
       command: service nginx reload || nginx
